@@ -1,10 +1,10 @@
 package com.example.vendingmachine.product;
 
+import com.example.vendingmachine.product.exceptions.InvalidProductId;
+import com.example.vendingmachine.product.exceptions.VendingMachineFull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +15,10 @@ public class ProductService {
     private static Long index = 0L;
 
 
-    public ResponseEntity addProduct(Product product){
+    public ResponseEntity addProduct(Product product) throws VendingMachineFull {
         try{
             if(products.size()>= 10){
-                return new ResponseEntity<>("Vending Machine is full! Please remove something", HttpStatus.OK);
+                throw new VendingMachineFull();
             }else{
                 index++;
                 product.setId(index);
@@ -26,44 +26,38 @@ public class ProductService {
                 return new ResponseEntity<>(products, HttpStatus.OK);
             }
         }catch (Exception e){
-            return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
+            throw e;
         }
 
     }
 
-    public ResponseEntity updateProduct(Product newProduct){
+    public ResponseEntity updateProduct(Product newProduct) throws InvalidProductId {
         try {
 
             Product product = fillProduct(newProduct);
             if(!products.containsKey(product.getId()))
-                return new ResponseEntity<>("No object Found", HttpStatus.OK);
+                throw new InvalidProductId(product.getId());
             else {
                 products.put(product.getId(),product);
                 return new ResponseEntity<>("Updated Successfully!", HttpStatus.OK);
             }
-        }catch (Exception e){
-            return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
+        }catch (InvalidProductId e){
+            throw e;
         }
     }
 
-    public ResponseEntity removeProduct(Long id){
+    public ResponseEntity removeProduct(Long id) throws InvalidProductId {
         try {
-
             if(!products.containsKey(id))
-                return new ResponseEntity<>("No object Found", HttpStatus.OK);
-            else{
-                products.remove(id);
-                return new ResponseEntity<>("Successfully Removed!", HttpStatus.OK);
-            }
-        }catch (Exception e){
-            return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
+                throw new InvalidProductId(id);
+
+            products.remove(id);
+            return new ResponseEntity<>("Successfully Removed!", HttpStatus.OK);
+
+        }catch (InvalidProductId e){
+            throw e;
         }
     }
-    public Product getProduct(String name){
-        Product product = products.values().stream().filter(x->x.getName().toUpperCase().equals(name.toUpperCase())).findFirst().orElse(null);
-        return product;
-    }
-
 
     public ResponseEntity allProducts(){
         try {
@@ -71,6 +65,11 @@ public class ProductService {
         }catch (Exception e){
             return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public Product getProduct(String name){
+        Product product = products.values().stream().filter(x->x.getName().toUpperCase().equals(name.toUpperCase())).findFirst().orElse(null);
+        return product;
     }
 
     public Product fillProduct(Product newProduct){

@@ -1,7 +1,9 @@
-package com.example.vendingmachine;
+package com.example.vendingmachine.vending;
 
 import com.example.vendingmachine.product.Product;
 import com.example.vendingmachine.product.ProductService;
+import com.example.vendingmachine.vending.exceptions.InvalidCoin;
+import com.example.vendingmachine.vending.exceptions.PriceNotReached;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,41 +19,40 @@ public class VendingMachineService {
 
     static Double moneyInsterted = 0.0;
 
-    public ResponseEntity insertCoins(String coins){
+    public ResponseEntity insertCoins(String coins) throws InvalidCoin {
         try {
             if(!checkMoney(coins))
-                return new ResponseEntity<>("Please Enter a Coin!", HttpStatus.OK);
+                throw new InvalidCoin();
             calculateMoney(coins);
             return new ResponseEntity<>("Current Money: " + moneyInsterted, HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
+        }catch (InvalidCoin e){
+            throw e;
         }
-
     }
 
     public ResponseEntity resetCoins(){
         try{
             Integer amountofMoney = moneyInsterted.intValue();
-            String decimalPart = moneyInsterted.toString().split("\\.")[1];
+            String decimalPart = moneyInsterted.toString().split("\\.")[1] + "0";
             moneyInsterted=0.0;
-            return new ResponseEntity<>("Amount of Money Returned: "+ amountofMoney +"Lv "+ decimalPart+"St" , HttpStatus.OK);
+            return new ResponseEntity<>("Amount of Money Returned: "+ amountofMoney +"Lv "+ decimalPart + "St" , HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e , HttpStatus.BAD_REQUEST);
         }
 
     }
 
-    public ResponseEntity buyProduct(String name){
+    public ResponseEntity buyProduct(String name) throws PriceNotReached {
         try{
             Product product =  productService.getProduct(name);
             if(moneyInsterted< product.getPrice())
-                return new ResponseEntity<>("Not Enough Money! Please Insert More!", HttpStatus.OK);
+                throw new PriceNotReached(product.getName(),product.getPrice());
             else {
                 moneyInsterted -= product.getPrice();
                 return new ResponseEntity<>(name +" Successfully Bought! Money left: " + moneyInsterted.toString(), HttpStatus.OK);
             }
-        }catch (Exception e){
-            return new ResponseEntity<>(e , HttpStatus.BAD_REQUEST);
+        }catch (PriceNotReached e){
+            throw e;
         }
     }
 
