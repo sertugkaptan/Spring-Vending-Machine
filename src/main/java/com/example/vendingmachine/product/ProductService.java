@@ -11,18 +11,18 @@ import java.util.Map;
 
 @Service
 public class ProductService {
-    private static Map<Long,Product> products = new HashMap<>();
+    ProductCatalog products = new ProductCatalog();
     private static Long index = 0L;
 
 
-    public ResponseEntity addProduct(Product product) throws VendingMachineFull {
+    public ResponseEntity addProduct(ProductEntity productEntity) throws VendingMachineFull {
         try{
-            if(products.size()>= 10){
+            if(products.getSize()>= 10){
                 throw new VendingMachineFull();
             }else{
                 index++;
-                product.setId(index);
-                products.put(index,product);
+                productEntity.setId(index);
+                products.put(index, productEntity);
                 return new ResponseEntity<>(products, HttpStatus.OK);
             }
         }catch (Exception e){
@@ -31,14 +31,14 @@ public class ProductService {
 
     }
 
-    public ResponseEntity updateProduct(Product newProduct) throws InvalidProductId {
+    public ResponseEntity updateProduct(ProductEntity newProductEntity) throws InvalidProductId {
         try {
 
-            Product product = fillProduct(newProduct);
-            if(!products.containsKey(product.getId()))
-                throw new InvalidProductId(product.getId());
+            ProductEntity productEntity = fillProduct(newProductEntity);
+            if(!products.getProductList().containsKey(productEntity.getId()))
+                throw new InvalidProductId(productEntity.getId());
             else {
-                products.put(product.getId(),product);
+                products.put(productEntity.getId(), productEntity);
                 return new ResponseEntity<>("Updated Successfully!", HttpStatus.OK);
             }
         }catch (InvalidProductId e){
@@ -48,7 +48,7 @@ public class ProductService {
 
     public ResponseEntity removeProduct(Long id) throws InvalidProductId {
         try {
-            if(!products.containsKey(id))
+            if(!products.getProductList().containsKey(id))
                 throw new InvalidProductId(id);
 
             products.remove(id);
@@ -61,29 +61,29 @@ public class ProductService {
 
     public ResponseEntity allProducts(){
         try {
-            return new ResponseEntity<>(products, HttpStatus.OK);
+            return new ResponseEntity<>(products.getProductList(), HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
         }
     }
 
-    public Product getProduct(String name){
-        Product product = products.values().stream().filter(x->x.getName().toUpperCase().equals(name.toUpperCase())).findFirst().orElse(null);
-        return product;
+    public ProductEntity getProduct(String name){
+        ProductEntity productEntity = products.getProductList().values().stream().filter(x->x.getName().toUpperCase().equals(name.toUpperCase())).findFirst().orElse(null);
+        return productEntity;
     }
 
-    public Product fillProduct(Product newProduct){
-        Product product = new Product();
-        if(!newProduct.getId().equals(null))
-            product = products.get(newProduct.getId());
+    public ProductEntity fillProduct(ProductEntity newProductEntity){
+        ProductEntity productEntity;
+        if(newProductEntity.getId() != null)
+            productEntity = products.getProductList().get(newProductEntity.getId());
         else{
-            products.get(newProduct.getName());
+            productEntity = getProduct(newProductEntity.getName());
         }
-        if(!newProduct.getName().isEmpty())
-            product.setName(newProduct.getName());
-        if(!newProduct.getPrice().equals(null))
-            product.setPrice(newProduct.getPrice());
+        if(!newProductEntity.getName().isEmpty())
+            productEntity.setName(newProductEntity.getName());
+        if(newProductEntity.getPrice() != null)
+            productEntity.setPrice(newProductEntity.getPrice());
 
-        return product;
+        return productEntity;
     }
 }

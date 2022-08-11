@@ -1,6 +1,6 @@
 package com.example.vendingmachine.vending;
 
-import com.example.vendingmachine.product.Product;
+import com.example.vendingmachine.product.ProductEntity;
 import com.example.vendingmachine.product.ProductService;
 import com.example.vendingmachine.vending.exceptions.InvalidCoin;
 import com.example.vendingmachine.vending.exceptions.PriceNotReached;
@@ -14,17 +14,19 @@ import java.util.ArrayList;
 
 @Service
 public class VendingMachineService {
+
+    MoneyInserted moneyInserted = new MoneyInserted();
+
     @Autowired
     private ProductService productService = new ProductService();
 
-    static Double moneyInsterted = 0.0;
 
     public ResponseEntity insertCoins(String coins) throws InvalidCoin {
         try {
             if(!checkMoney(coins))
                 throw new InvalidCoin();
             calculateMoney(coins);
-            return new ResponseEntity<>("Current Money: " + moneyInsterted, HttpStatus.OK);
+            return new ResponseEntity<>("Current Money: " + moneyInserted.getMoney(), HttpStatus.OK);
         }catch (InvalidCoin e){
             throw e;
         }
@@ -32,9 +34,9 @@ public class VendingMachineService {
 
     public ResponseEntity resetCoins(){
         try{
-            Integer amountofMoney = moneyInsterted.intValue();
-            String decimalPart = moneyInsterted.toString().split("\\.")[1] + "0";
-            moneyInsterted=0.0;
+            Integer amountofMoney = moneyInserted.getMoney().intValue();
+            String decimalPart = moneyInserted.getMoney().toString().split("\\.")[1] + "0";
+            moneyInserted.setMoney(0.0);
             return new ResponseEntity<>("Amount of Money Returned: "+ amountofMoney +"Lv "+ decimalPart + "St" , HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(e , HttpStatus.BAD_REQUEST);
@@ -44,12 +46,13 @@ public class VendingMachineService {
 
     public ResponseEntity buyProduct(String name) throws PriceNotReached {
         try{
-            Product product =  productService.getProduct(name);
-            if(moneyInsterted< product.getPrice())
-                throw new PriceNotReached(product.getName(),product.getPrice());
+            ProductEntity productEntity =  productService.getProduct(name);
+            if(moneyInserted.getMoney()< productEntity.getPrice())
+                throw new PriceNotReached(productEntity.getName(), productEntity.getPrice());
             else {
-                moneyInsterted -= product.getPrice();
-                return new ResponseEntity<>(name +" Successfully Bought! Money left: " + moneyInsterted.toString(), HttpStatus.OK);
+                Double currentMoney =  moneyInserted.getMoney()- productEntity.getPrice();
+                moneyInserted.setMoney(currentMoney);
+                return new ResponseEntity<>(name +" Successfully Bought! Money left: " + moneyInserted.getMoney().toString(), HttpStatus.OK);
             }
         }catch (PriceNotReached e){
             throw e;
@@ -61,10 +64,12 @@ public class VendingMachineService {
         Integer res = Integer.parseInt(money);
 
         if(res%10 != 0){
-            moneyInsterted += res.doubleValue();
+            Double currentMoney = moneyInserted.getMoney() + res.doubleValue();
+            moneyInserted.setMoney(currentMoney);
         }else{
             Double div = res.doubleValue()/100;
-            moneyInsterted += div;
+            Double currentMoney = moneyInserted.getMoney() + div;
+            moneyInserted.setMoney(currentMoney);
         }
     }
 

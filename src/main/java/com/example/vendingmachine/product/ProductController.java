@@ -5,14 +5,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+
 @RestController
 public class ProductController {
+    @Autowired
     ProductService productService = new ProductService();
 
     @PostMapping("/addProduct")
-    public ResponseEntity addProduct(@RequestBody Product product){
+    public ResponseEntity addProduct(@RequestBody ProductEntity productEntity){
         try{
-            return new ResponseEntity<>(productService.addProduct(product), HttpStatus.OK);
+            return new ResponseEntity<>(productService.addProduct(productEntity), HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
         }
@@ -37,13 +40,12 @@ public class ProductController {
         }catch (Exception e){
             return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
         }
-
     }
 
     @PostMapping("/updateProduct")
-    public ResponseEntity updateProduct(@RequestBody Product newProduct){
+    public ResponseEntity updateProduct(@RequestBody ProductEntity newProductEntity){
         try {
-            return new ResponseEntity<>(productService.updateProduct(newProduct), HttpStatus.OK);
+            return new ResponseEntity<>(productService.updateProduct(newProductEntity), HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
         }
