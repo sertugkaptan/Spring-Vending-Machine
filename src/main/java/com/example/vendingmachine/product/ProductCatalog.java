@@ -5,7 +5,20 @@ import java.util.Map;
 
 public class ProductCatalog {
 
+    private static ProductCatalog productCatalog;
+
+    private Map<Long, ProductEntity> productList ;
+
+    public static ProductCatalog getInstance() {
+        if(productCatalog == null)
+            productCatalog = new ProductCatalog();
+        return productCatalog;
+    }
+
+
     public Map<Long, ProductEntity> getProductList() {
+        if(productList == null)
+            productList = new HashMap<>(10);
         return productList;
     }
 
@@ -17,7 +30,6 @@ public class ProductCatalog {
         this.productList.remove(id);
     }
 
-    private  Map<Long, ProductEntity> productList = new HashMap<>(10);
 
     public Integer getSize() {
         return productList.size();

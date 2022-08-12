@@ -1,5 +1,6 @@
 package com.example.vendingmachine.vending;
 
+import com.example.vendingmachine.product.ProductCatalog;
 import com.example.vendingmachine.product.ProductEntity;
 import com.example.vendingmachine.product.ProductService;
 import com.example.vendingmachine.vending.exceptions.InvalidCoin;
@@ -12,10 +13,14 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 
+
 @Service
 public class VendingMachineService {
 
     MoneyInserted moneyInserted = new MoneyInserted();
+
+
+    private  ProductCatalog productCatalog = new ProductCatalog();
 
     @Autowired
     private ProductService productService = new ProductService();
@@ -29,6 +34,7 @@ public class VendingMachineService {
             return new ResponseEntity<>("Current Money: " + moneyInserted.getMoney(), HttpStatus.OK);
         }catch (InvalidCoin e){
             throw e;
+
         }
     }
 
@@ -46,11 +52,11 @@ public class VendingMachineService {
 
     public ResponseEntity buyProduct(String name) throws PriceNotReached {
         try{
-            ProductEntity productEntity =  productService.getProduct(name);
+            ProductEntity productEntity = productService.getProduct(name);
             if(moneyInserted.getMoney()< productEntity.getPrice())
                 throw new PriceNotReached(productEntity.getName(), productEntity.getPrice());
             else {
-                Double currentMoney =  moneyInserted.getMoney()- productEntity.getPrice();
+                Double currentMoney =  moneyInserted.getMoney() - productEntity.getPrice();
                 moneyInserted.setMoney(currentMoney);
                 return new ResponseEntity<>(name +" Successfully Bought! Money left: " + moneyInserted.getMoney().toString(), HttpStatus.OK);
             }

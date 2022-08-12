@@ -2,16 +2,17 @@ package com.example.vendingmachine.product;
 
 import com.example.vendingmachine.product.exceptions.InvalidProductId;
 import com.example.vendingmachine.product.exceptions.VendingMachineFull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class ProductService {
-    ProductCatalog products = new ProductCatalog();
+
+    ProductCatalog products = ProductCatalog.getInstance();
+
     private static Long index = 0L;
 
 
@@ -68,6 +69,7 @@ public class ProductService {
     }
 
     public ProductEntity getProduct(String name){
+
         ProductEntity productEntity = products.getProductList().values().stream().filter(x->x.getName().toUpperCase().equals(name.toUpperCase())).findFirst().orElse(null);
         return productEntity;
     }
