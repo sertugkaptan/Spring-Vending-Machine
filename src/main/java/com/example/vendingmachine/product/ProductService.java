@@ -13,7 +13,6 @@ public class ProductService {
 
     ProductCatalog products = ProductCatalog.getInstance();
 
-    private static Long index = 0L;
 
 
     public ResponseEntity addProduct(ProductEntity productEntity) throws VendingMachineFull {
@@ -21,9 +20,8 @@ public class ProductService {
             if(products.getSize()>= 10){
                 throw new VendingMachineFull();
             }else{
-                index++;
-                productEntity.setId(index);
-                products.put(index, productEntity);
+                productEntity.setId(products.getSize().longValue());
+                products.put(productEntity);
                 return new ResponseEntity<>(products, HttpStatus.OK);
             }
         }catch (Exception e){
@@ -34,12 +32,11 @@ public class ProductService {
 
     public ResponseEntity updateProduct(ProductEntity newProductEntity) throws InvalidProductId {
         try {
-
             ProductEntity productEntity = fillProduct(newProductEntity);
             if(!products.getProductList().containsKey(productEntity.getId()))
                 throw new InvalidProductId(productEntity.getId());
             else {
-                products.put(productEntity.getId(), productEntity);
+                products.put(productEntity);
                 return new ResponseEntity<>("Updated Successfully!", HttpStatus.OK);
             }
         }catch (InvalidProductId e){

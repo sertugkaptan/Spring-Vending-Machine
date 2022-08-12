@@ -22,8 +22,8 @@ public class ProductCatalog {
         return productList;
     }
 
-    public void put(Long index, ProductEntity product) {
-        this.productList.put(index,product);
+    public void put(ProductEntity product) {
+        this.productList.put(product.getId(), product);
     }
 
     public void remove(Long id) {
