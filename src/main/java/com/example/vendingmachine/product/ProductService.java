@@ -22,7 +22,7 @@ public class ProductService {
             }else{
                 productEntity.setId(products.getSize().longValue());
                 products.put(productEntity);
-                return new ResponseEntity<>(products, HttpStatus.OK);
+                return new ResponseEntity<>("Successfully added!", HttpStatus.OK);
             }
         }catch (Exception e){
             throw e;
