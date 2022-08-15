@@ -43,16 +43,16 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/updateProduct")
-    public ResponseEntity updateProduct(@RequestBody ProductEntity newProductEntity){
+    @PutMapping("/updateProduct/{id}")
+    public ResponseEntity updateProduct(@PathVariable Long id, @RequestBody ProductEntity newProductEntity){
         try {
-            return new ResponseEntity<>(productService.updateProduct(newProductEntity), HttpStatus.OK);
+            return new ResponseEntity<>(productService.updateProduct(id,newProductEntity), HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity(e,HttpStatus.BAD_REQUEST);
         }
     }
 
-    @GetMapping("/removeProduct/{id}")
+    @DeleteMapping("/removeProduct/{id}")
     public ResponseEntity removeProduct(@PathVariable Long id){
         try {
             return new ResponseEntity<>(productService.removeProduct(id), HttpStatus.OK);

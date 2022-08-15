@@ -66,8 +66,9 @@ public class TestProducts {
             productEntity.setName("chocolate");
             productService.addProduct(productEntity);
             productEntity.setPrice(3.0);
+            Long id = productService.getProduct(productEntity.getName()).getId();
 
-            Assertions.assertEquals("Updated Successfully!",productService.updateProduct(productEntity).getBody());
+            Assertions.assertEquals("Updated Successfully!",productService.updateProduct(id,productEntity).getBody());
         }catch(VendingMachineFull  | InvalidProductId e){
             throw e;
         }

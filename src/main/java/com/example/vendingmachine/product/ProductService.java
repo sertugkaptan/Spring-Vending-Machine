@@ -30,11 +30,11 @@ public class ProductService {
 
     }
 
-    public ResponseEntity updateProduct(ProductEntity newProductEntity) throws InvalidProductId {
+    public ResponseEntity updateProduct(Long id, ProductEntity newProductEntity) throws InvalidProductId {
         try {
-            ProductEntity productEntity = fillProduct(newProductEntity);
-            if(!products.getProductList().containsKey(productEntity.getId()))
-                throw new InvalidProductId(productEntity.getId());
+            ProductEntity productEntity = fillProduct(id,newProductEntity);
+            if(!products.getProductList().containsKey(id))
+                throw new InvalidProductId(id);
             else {
                 products.put(productEntity);
                 return new ResponseEntity<>("Updated Successfully!", HttpStatus.OK);
@@ -66,19 +66,23 @@ public class ProductService {
     }
 
     public ProductEntity getProduct(String name){
-
+        //finds the product using the name otherwise it will return null.
         ProductEntity productEntity = products.getProductList().values().stream().filter(x->x.getName().toUpperCase().equals(name.toUpperCase())).findFirst().orElse(null);
         return productEntity;
     }
 
-    public ProductEntity fillProduct(ProductEntity newProductEntity){
-        ProductEntity productEntity;
-        if(newProductEntity.getId() != null)
-            productEntity = products.getProductList().get(newProductEntity.getId());
-        else{
-            productEntity = getProduct(newProductEntity.getName());
-        }
-        if(!newProductEntity.getName().isEmpty())
+    public ProductEntity getProduct(Long id){
+        //finds the product using the name otherwise it will return null.
+        ProductEntity productEntity = products.getProductList().values().stream().filter(x->x.getId().equals(id)).findFirst().orElse(null);
+        return productEntity;
+    }
+
+    public ProductEntity fillProduct(Long id,ProductEntity newProductEntity){
+        ProductEntity productEntity = getProduct(id);
+
+
+        // check if the product has a name if it does replace the name with the new name
+        if(newProductEntity.getName() != null)
             productEntity.setName(newProductEntity.getName());
         if(newProductEntity.getPrice() != null)
             productEntity.setPrice(newProductEntity.getPrice());
