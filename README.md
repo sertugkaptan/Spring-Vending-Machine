@@ -24,3 +24,5 @@ Open the project up using an IDE. After the project has loaded do a clean instal
     5.Click on the green (play) button
     6.Click on install
     7.Click on the green (play) button
+
+    ![Alt text] (https://github.com/sertugkaptan/Spring-Vending-Machine/blob/main/Screenshot_1.png)
